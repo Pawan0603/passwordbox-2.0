@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+'use client';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import {
@@ -17,16 +18,17 @@ import {
   Menu,
   X
 } from 'lucide-react';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 // import { useAuth } from '../context/AuthContext';
 import { toast } from 'sonner';
-import PasswordModal from '../components/PasswordModal';
+import PasswordModal from '@/components/PasswordModal';
 
 const Page = () => {
   const router = useRouter();
-  const { user, logout } = useAuth();
+  // const { user, logout } = useAuth();
+  const [screenWidth, setScreenWidth] = useState();
   const [searchQuery, setSearchQuery] = useState('');
   const [passwords, setPasswords] = useState([
     {
@@ -58,6 +60,11 @@ const Page = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingPassword, setEditingPassword] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+   useEffect(() => {
+    if(typeof window === "undefined") return;
+    setScreenWidth(window.innerWidth);
+  }, []);
 
   const filteredPasswords = passwords.filter(pwd =>
     pwd.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -126,7 +133,7 @@ const Page = () => {
     <div className="min-h-screen bg-background flex">
       {/* Sidebar */}
       <AnimatePresence>
-        {(sidebarOpen || window.innerWidth >= 768) && (
+        {(sidebarOpen || screenWidth >= 768) && (
           <motion.aside
             initial={{ x: -300 }}
             animate={{ x: 0 }}
