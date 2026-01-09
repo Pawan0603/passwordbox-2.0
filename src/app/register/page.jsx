@@ -9,21 +9,23 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 // import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
+import axios from 'axios';
 
 const Page = () => {
   const router = useRouter();
-//   const { register, isAuthenticated } = useAuth();
+  //   const { register, isAuthenticated } = useAuth();
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-//   React.useEffect(() => {
-//     if (isAuthenticated) {
-//       router.push('/dashboard');
-//     }
-//   }, [isAuthenticated, router.push]);
+  //   React.useEffect(() => {
+  //     if (isAuthenticated) {
+  //       router.push('/dashboard');
+  //     }
+  //   }, [isAuthenticated, router.push]);
 
   const passwordChecks = [
     { label: 'At least 8 characters', check: password.length >= 8 },
@@ -34,7 +36,7 @@ const Page = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!email || !password || !confirmPassword) {
       toast.error('Please fill in all fields');
       return;
@@ -45,26 +47,35 @@ const Page = () => {
       return;
     }
 
-    if (password.length < 8) {
-      toast.error('Password must be at least 8 characters');
+    if (password.length < 6) {
+      toast.error('Password must be at least 6 characters');
       return;
     }
 
     setIsLoading(true);
-    
-    setTimeout(() => {
-      register(email, password);
-      toast.success('Account created successfully!');
-      router.push('/dashboard');
+
+    let data = {
+      "name": name,
+      "email": email,
+      "password": password
+    }
+
+    try {
+      const res = await axios.post('/api/register', data);
+      toast.success(res.data.message);
+      router.push('/login');
       setIsLoading(false);
-    }, 1000);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Error creating account');
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
       <div className="absolute inset-0 grid-pattern opacity-10"></div>
       <div className="scanline"></div>
-      
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -98,6 +109,24 @@ const Page = () => {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="name" className="text-foreground font-mono">
+                  Name
+                </Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    id="name"
+                    type="text"
+                    placeholder="John Doe"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="pl-10 bg-input border-border focus:border-primary transition-glow font-mono"
+                    required
+                  />
+                </div>
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-foreground font-mono">
                   Email Address
@@ -139,7 +168,7 @@ const Page = () => {
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
-                
+
                 {/* Password Strength */}
                 {password && (
                   <motion.div
