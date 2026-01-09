@@ -65,7 +65,7 @@ const LandingPage = () => {
               whileHover={{ scale: 1.05 }}
             >
               <Shield className="w-8 h-8 text-primary" />
-              <span className="text-xl font-bold font-mono gradient-text">SecureVault</span>
+              <span className="text-xl font-bold font-mono gradient-text">PasswordBox</span>
             </motion.div>
             <div className="flex items-center space-x-4">
               <Button
@@ -271,7 +271,7 @@ const LandingPage = () => {
               <span className="gradient-text">Ready to Secure Your Digital Life?</span>
             </h2>
             <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Join millions of users who trust SecureVault to protect their passwords.
+              Join millions of users who trust PasswordBox to protect their passwords.
             </p>
             <Button
               size="lg"
@@ -292,7 +292,7 @@ const LandingPage = () => {
             <div>
               <div className="flex items-center space-x-2 mb-4">
                 <Shield className="w-6 h-6 text-primary" />
-                <span className="text-lg font-bold font-mono gradient-text">SecureVault</span>
+                <span className="text-lg font-bold font-mono gradient-text">PasswordBox</span>
               </div>
               <p className="text-sm text-muted-foreground">
                 Enterprise-grade password management with zero-knowledge encryption.
@@ -322,7 +322,7 @@ const LandingPage = () => {
             </div>
           </div>
           <div className="mt-8 pt-8 border-t border-border text-center text-sm text-muted-foreground">
-            <p>&copy; 2024 SecureVault. All rights reserved. Protected by zero-knowledge architecture.</p>
+            <p>&copy; 2024 PasswordBox. All rights reserved. Protected by zero-knowledge architecture.</p>
           </div>
         </div>
       </footer>
