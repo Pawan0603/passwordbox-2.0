@@ -1,7 +1,10 @@
 // import { Geist, Geist_Mono } from "next/font/google";
 import { Space_Mono, Roboto_Mono } from 'next/font/google';
 import "./globals.css";
-import { Toaster } from "@/components/ui/sonner"
+import { Toaster } from "@/components/ui/sonner";
+import { AuthProvider } from '@/context/AuthContext';
+import jwt from 'jsonwebtoken';
+import { cookies } from 'next/headers';
 
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -31,14 +34,30 @@ export const metadata = {
   description: "A secure and user-friendly password manager built by pawan thakre",
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+
+  const cookieStore = await cookies();
+  const token = cookieStore.get('PasswordBoxToken')?.value;
+  
+  let userData = null;
+  if (token) {
+    try {
+      // Server side par decrypt/decode karein
+      userData = jwt.decode(token); 
+    } catch (err) {
+      console.error("Token decode error", err);
+    }
+  }
+
   return (
     <html lang="en">
       <body
         className={`${spaceMono.variable} ${robotoMono.variable} antialiased`}
       >
-        <Toaster position="top-right" richColors />
-        {children}
+        <AuthProvider initialUser={userData}>
+          <Toaster position="top-right" richColors />
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

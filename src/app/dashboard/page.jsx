@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import {
@@ -21,13 +21,13 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-// import { useAuth } from '../context/AuthContext';
+import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
 import PasswordModal from '@/components/PasswordModal';
 
 const Page = () => {
   const router = useRouter();
-  // const { user, logout } = useAuth();
+  const { user, logout } = useAuth();
   const [screenWidth, setScreenWidth] = useState();
   const [searchQuery, setSearchQuery] = useState('');
   const [passwords, setPasswords] = useState([
@@ -61,10 +61,14 @@ const Page = () => {
   const [editingPassword, setEditingPassword] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-   useEffect(() => {
-    if(typeof window === "undefined") return;
+  useEffect(() => {
+    if (typeof window === "undefined") return;
     setScreenWidth(window.innerWidth);
   }, []);
+
+  useEffect(() => {
+    console.log('User data:', user);
+  }, [user]);
 
   const filteredPasswords = passwords.filter(pwd =>
     pwd.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -173,11 +177,10 @@ const Page = () => {
                   key={index}
                   whileHover={{ x: 5 }}
                   onClick={item.action}
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors font-mono ${
-                    item.danger
+                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors font-mono ${item.danger
                       ? 'text-destructive hover:bg-destructive/10'
                       : 'text-foreground hover:bg-primary/10 hover:text-primary'
-                  }`}
+                    }`}
                 >
                   {item.icon}
                   <span>{item.label}</span>

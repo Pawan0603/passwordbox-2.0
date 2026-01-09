@@ -27,8 +27,8 @@ export async function POST(request){
             sameSite: "strict",
             path: '/',
         })
-    
-        return Response.json({ success: true, message: "User logged in successfully" }, { status: 200 })
+
+        return Response.json({ success: true, message: "User logged in successfully", data: { id_: user._id, email: user.email, name: user.name } }, { status: 200 })
 
     } catch (error) {
         console.error("Error login user", error);

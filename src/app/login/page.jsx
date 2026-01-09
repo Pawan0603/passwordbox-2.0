@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import axios from 'axios';
+import { useAuth } from '@/context/AuthContext';
 
 const Page = () => {
   const router = useRouter();
@@ -16,6 +17,8 @@ const Page = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  const { setUser } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,6 +38,7 @@ const Page = () => {
     try {
       const response = await axios.post('/api/login', data);
       toast.success('Login successful!');
+      setUser(response.data.data);
       router.push('/dashboard');
     } catch (error) {
       toast.error(error.response?.data?.message || 'An error occurred. Please try again.');
