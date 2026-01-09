@@ -69,7 +69,7 @@ const LandingPage = () => {
               <Shield className="w-8 h-8 text-primary" />
               <span className="text-xl font-bold font-mono gradient-text">PasswordBox</span>
             </motion.div>
-            {user ? <div className="flex items-center space-x-4">
+            {user === null ? (<div className="flex items-center space-x-4">
               <Button
                 variant="ghost"
                 onClick={() => router.push('/login')}
@@ -83,7 +83,7 @@ const LandingPage = () => {
               >
                 Get Started
               </Button>
-            </div> : <div className="flex items-center space-x-4">
+            </div>) : (<div className="flex items-center space-x-4">
               <Button
                 variant="ghost"
                 onClick={() => router.push('/dashboard')}
@@ -91,7 +91,7 @@ const LandingPage = () => {
               >
                 Dashboard
               </Button>
-            </div>}
+            </div>)}
           </div>
         </div>
       </motion.nav>
@@ -129,7 +129,7 @@ const LandingPage = () => {
               Your passwords are encrypted locally before syncing - we never see your data.
             </p>
 
-            {user ? <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            {user === null ? <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button
                 size="lg"
                 onClick={() => router.push('/register')}
