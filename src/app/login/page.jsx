@@ -7,22 +7,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-// import { useAuth } from '../context/AuthContext';
 import { toast } from 'sonner';
+import axios from 'axios';
 
 const Page = () => {
   const router = useRouter();
-//   const { login, isAuthenticated } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
-//   React.useEffect(() => {
-//     if (isAuthenticated) {
-//       router.push('/dashboard');
-//     }
-//   }, [isAuthenticated, router.push]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,13 +26,21 @@ const Page = () => {
     }
 
     setIsLoading(true);
+
+    const data = {
+      email,
+      password
+    }
     
-    // setTimeout(() => {
-    //   login(email, password);
-    //   toast.success('Login successful!');
-    //   router.push('/dashboard');
-    //   setIsLoading(false);
-    // }, 1000);
+    try {
+      const response = await axios.post('/api/login', data);
+      toast.success('Login successful!');
+      router.push('/dashboard');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'An error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
