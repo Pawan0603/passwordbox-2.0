@@ -5,9 +5,11 @@ import { useRouter } from 'next/navigation';
 import { Shield, Lock, Key, Eye, Fingerprint, Server, CheckCircle2, ArrowRight } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
+import { useAuth } from '@/context/AuthContext';
 
 const LandingPage = () => {
   const router = useRouter();
+  const { user } = useAuth();
 
   const features = [
     {
@@ -67,7 +69,7 @@ const LandingPage = () => {
               <Shield className="w-8 h-8 text-primary" />
               <span className="text-xl font-bold font-mono gradient-text">PasswordBox</span>
             </motion.div>
-            <div className="flex items-center space-x-4">
+            {user ? <div className="flex items-center space-x-4">
               <Button
                 variant="ghost"
                 onClick={() => router.push('/login')}
@@ -81,7 +83,15 @@ const LandingPage = () => {
               >
                 Get Started
               </Button>
-            </div>
+            </div> : <div className="flex items-center space-x-4">
+              <Button
+                variant="ghost"
+                onClick={() => router.push('/dashboard')}
+                className="text-foreground hover:text-primary"
+              >
+                Dashboard
+              </Button>
+            </div>}
           </div>
         </div>
       </motion.nav>
@@ -90,7 +100,7 @@ const LandingPage = () => {
       <section className="relative overflow-hidden py-20 sm:py-32">
         <div className="absolute inset-0 grid-pattern opacity-20"></div>
         <div className="scanline"></div>
-        
+
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -113,13 +123,13 @@ const LandingPage = () => {
               <br />
               <span className="gradient-text">One Vault. Total Control.</span>
             </h1>
-            
+
             <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto mb-10">
-              Enterprise-grade encryption meets zero-knowledge architecture. 
+              Enterprise-grade encryption meets zero-knowledge architecture.
               Your passwords are encrypted locally before syncing - we never see your data.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            {user ? <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button
                 size="lg"
                 onClick={() => router.push('/register')}
@@ -136,7 +146,16 @@ const LandingPage = () => {
               >
                 Sign In
               </Button>
-            </div>
+            </div> : <div>
+              <Button
+                size="lg"
+                onClick={() => router.push('/dashboard')}
+                className="bg-primary text-primary-foreground hover:bg-primary/90 neon-glow font-mono text-lg px-8 py-6"
+              >
+                Dashboard
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+            </div>}
 
             {/* Stats */}
             <motion.div

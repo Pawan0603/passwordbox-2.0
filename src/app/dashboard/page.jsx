@@ -1,5 +1,5 @@
 'use client';
-import React, { use, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import {
@@ -24,10 +24,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
 import PasswordModal from '@/components/PasswordModal';
+import axios from 'axios';
 
 const Page = () => {
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { user, setUser } = useAuth();
   const [screenWidth, setScreenWidth] = useState();
   const [searchQuery, setSearchQuery] = useState('');
   const [passwords, setPasswords] = useState([
@@ -120,9 +121,15 @@ const Page = () => {
   };
 
   const handleLogout = () => {
-    logout();
-    toast.success('Logged out successfully');
-    router.push('/login');
+
+    try {
+      axios.post('/api/logout');
+      setUser(null);
+      toast.success('Logged out successfully');
+      router.push('/');
+    } catch (error) {
+      toast.error('Error logging out');
+    }
   };
 
   const menuItems = [
