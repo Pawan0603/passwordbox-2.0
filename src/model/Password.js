@@ -1,8 +1,18 @@
-const VaultSchema = new Schema({
+import mongoose, { Schema } from "mongoose";
+
+const PasswordSchema = new Schema({
     userId: {
         type: Schema.Types.ObjectId,
-        ref: 'User', // Yeh User model se link hai
-        required: true
+        ref: 'User',
+        required: [ true, "User ID is required" ]
+    },
+    userEmail: {
+        type: String,
+        required: [ true, "User email is required" ]
+    },
+    title: {
+        type: String,
+        required: [true, "Heading is required"]
     },
     webUrl: {
         type: String,
@@ -16,12 +26,12 @@ const VaultSchema = new Schema({
         type: String,
         required: [true, "Password is required"]
     }, // Encrypted string
-    title: {
-        type: String,
-        required: [true, "Heading is required"]
-    },
     Description: {
         type: String
     },
     isFavorite: { type: Boolean, default: false }
 }, { timestamps: true });
+
+const PasswordModel = mongoose.models.Password || mongoose.model("Password", PasswordSchema)
+
+export default PasswordModel;

@@ -40,7 +40,14 @@ const PasswordModal = ({ open, onClose, onSave, initialData }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(formData);
+    const data = {
+      title: formData.title,
+      webUrl: formData.website,
+      identifier: formData.username,
+      password: formData.password,
+      description: formData.description
+    };
+    onSave(data);
   };
 
   const generatePassword = () => {

@@ -104,7 +104,7 @@ const Page = () => {
     setModalOpen(true);
   };
 
-  const handleSavePassword = (passwordData) => {
+  const handleSavePassword = async (passwordData) => {
     if (editingPassword) {
       // Update existing password
       setPasswords(passwords.map(pwd =>
@@ -113,8 +113,13 @@ const Page = () => {
       toast.success('Password updated successfully');
     } else {
       // Add new password
-      setPasswords([...passwords, { ...passwordData, id: Date.now() }]);
-      toast.success('Password added successfully');
+      try {
+        await axios.post('/api/password', passwordData);
+        toast.success('Password added successfully');
+        setPasswords([...passwords, { ...passwordData, id: Date.now() }]);
+      } catch (error) {
+        toast.error(error.response?.data?.message || 'Error adding password');
+      }
     }
     setModalOpen(false);
     setEditingPassword(null);
