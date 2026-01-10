@@ -19,7 +19,13 @@ const PasswordModal = ({ open, onClose, onSave, initialData }) => {
 
   useEffect(() => {
     if (initialData) {
-      setFormData(initialData);
+      setFormData({
+        title: initialData.title || '',
+        website: initialData.webUrl || '',
+        username: initialData.identifier || '',
+        password: initialData.password || '',
+        description: initialData.Description || ''
+      });
     } else {
       setFormData({
         title: '',

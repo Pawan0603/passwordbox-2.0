@@ -18,7 +18,7 @@ export async function POST(request){
 
         if(!isPasswordCorrect) return Response.json({ success: false, message: "Invalid password" }, { status: 400 });
 
-        var token = jwt.sign({ id_: user._id, email: user.email, name: user.name }, process.env.JWT_SECRET, { expiresIn: '7d' });
+        var token = jwt.sign({ _id: user._id, email: user.email, name: user.name }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
         const cookieStore = await cookies()
         cookieStore.set("PasswordBoxToken", token, {

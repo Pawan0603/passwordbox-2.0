@@ -25,38 +25,14 @@ import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
 import PasswordModal from '@/components/PasswordModal';
 import axios from 'axios';
+import CryptoJS from "crypto-js";
 
 const Page = () => {
   const router = useRouter();
   const { user, setUser } = useAuth();
   const [screenWidth, setScreenWidth] = useState();
   const [searchQuery, setSearchQuery] = useState('');
-  const [passwords, setPasswords] = useState([
-    {
-      id: 1,
-      title: 'GitHub',
-      website: 'https://github.com',
-      username: 'user@example.com',
-      password: 'SecurePass123!',
-      description: 'Development account'
-    },
-    {
-      id: 2,
-      title: 'Gmail',
-      website: 'https://gmail.com',
-      username: 'myemail@gmail.com',
-      password: 'MyEmail2024@',
-      description: 'Personal email'
-    },
-    {
-      id: 3,
-      title: 'Netflix',
-      website: 'https://netflix.com',
-      username: 'viewer@example.com',
-      password: 'N3tfl!xPass',
-      description: 'Streaming service'
-    }
-  ]);
+  const [passwords, setPasswords] = useState([]);
   const [visiblePasswords, setVisiblePasswords] = useState({});
   const [modalOpen, setModalOpen] = useState(false);
   const [editingPassword, setEditingPassword] = useState(null);
@@ -67,9 +43,33 @@ const Page = () => {
     setScreenWidth(window.innerWidth);
   }, []);
 
+  const fecthPasswords = async () => {
+    try {
+      const response = await axios.get('/api/password');
+      setPasswords(response.data.passwords);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Error fetching passwords');
+    }
+  }
+
   useEffect(() => {
-    console.log('User data:', user);
+    if(!user) return;
+    fecthPasswords();
   }, [user]);
+
+  const decryptPassword = (encryptedText) => {
+    try {
+      const secretKey = process.env.NEXT_PUBLIC_MASTER_KEY+user._id;
+
+      const bytes = CryptoJS.AES.decrypt(encryptedText, secretKey);
+      const originalText = bytes.toString(CryptoJS.enc.Utf8);
+
+      return originalText;
+    } catch (error) {
+      console.error("Decryption failed:", error);
+      return "*******";
+    }
+  };
 
   const filteredPasswords = passwords.filter(pwd =>
     pwd.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -85,13 +85,20 @@ const Page = () => {
   };
 
   const copyToClipboard = (text, label) => {
-    navigator.clipboard.writeText(text);
+    if(label === 'Password') navigator.clipboard.writeText(decryptPassword(text));
+    else navigator.clipboard.writeText(text);
     toast.success(`${label} copied to clipboard!`);
   };
 
-  const handleDelete = (id) => {
-    setPasswords(passwords.filter(pwd => pwd.id !== id));
-    toast.success('Password deleted successfully');
+  const handleDelete = async (_id) => {
+    try {
+      await axios.delete('/api/password', { data: { _id } });
+      setPasswords(passwords.filter(pwd => pwd._id !== _id));
+      toast.success('Password deleted successfully');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Error deleting password');
+    }
+
   };
 
   const handleEdit = (password) => {
@@ -107,16 +114,21 @@ const Page = () => {
   const handleSavePassword = async (passwordData) => {
     if (editingPassword) {
       // Update existing password
-      setPasswords(passwords.map(pwd =>
-        pwd.id === editingPassword.id ? { ...passwordData, id: pwd.id } : pwd
-      ));
-      toast.success('Password updated successfully');
+      try {
+        const res = await axios.put(`/api/password`, { ...passwordData, _id: editingPassword._id });
+        setPasswords(passwords.map(pwd =>
+          pwd._id === editingPassword._id ? res.data.updatedPassword : pwd
+        ));
+        toast.success('Password updated successfully');
+      } catch (error) {
+        toast.error(error.response?.data?.message || 'Error updating password');
+      }
     } else {
       // Add new password
       try {
-        await axios.post('/api/password', passwordData);
+        const res = await axios.post('/api/password', passwordData);
         toast.success('Password added successfully');
-        setPasswords([...passwords, { ...passwordData, id: Date.now() }]);
+        setPasswords([...passwords, res.data.data]);
       } catch (error) {
         toast.error(error.response?.data?.message || 'Error adding password');
       }
@@ -190,8 +202,8 @@ const Page = () => {
                   whileHover={{ x: 5 }}
                   onClick={item.action}
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors font-mono ${item.danger
-                      ? 'text-destructive hover:bg-destructive/10'
-                      : 'text-foreground hover:bg-primary/10 hover:text-primary'
+                    ? 'text-destructive hover:bg-destructive/10'
+                    : 'text-foreground hover:bg-primary/10 hover:text-primary'
                     }`}
                 >
                   {item.icon}
@@ -282,7 +294,7 @@ const Page = () => {
           ) : (
             filteredPasswords.map((pwd, index) => (
               <motion.div
-                key={pwd.id}
+                key={pwd._id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
@@ -295,7 +307,7 @@ const Page = () => {
                           {pwd.title}
                         </CardTitle>
                         <CardDescription className="text-muted-foreground">
-                          {pwd.website}
+                          {pwd.webUrl}
                         </CardDescription>
                       </div>
                       <div className="flex items-center space-x-2">
@@ -310,7 +322,7 @@ const Page = () => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => handleDelete(pwd.id)}
+                          onClick={() => handleDelete(pwd._id)}
                           className="text-muted-foreground hover:text-destructive"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -323,11 +335,11 @@ const Page = () => {
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-muted-foreground">Username:</span>
                         <div className="flex items-center space-x-2">
-                          <code className="text-sm font-mono text-foreground">{pwd.username}</code>
+                          <code className="text-sm font-mono text-foreground">{pwd.identifier}</code>
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => copyToClipboard(pwd.username, 'Username')}
+                            onClick={() => copyToClipboard(pwd.identifier, 'Username')}
                             className="h-8 w-8 text-muted-foreground hover:text-primary"
                           >
                             <Copy className="w-3 h-3" />
@@ -338,12 +350,12 @@ const Page = () => {
                         <span className="text-sm text-muted-foreground">Password:</span>
                         <div className="flex items-center space-x-2">
                           <code className="text-sm font-mono text-foreground">
-                            {visiblePasswords[pwd.id] ? pwd.password : '••••••••'}
+                            {visiblePasswords[pwd._id] ? decryptPassword(pwd.Password) : '••••••••'}
                           </code>
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => togglePasswordVisibility(pwd.id)}
+                            onClick={() => togglePasswordVisibility(pwd._id)}
                             className="h-8 w-8 text-muted-foreground hover:text-primary"
                           >
                             {visiblePasswords[pwd.id] ? (
@@ -355,15 +367,15 @@ const Page = () => {
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => copyToClipboard(pwd.password, 'Password')}
+                            onClick={() => copyToClipboard(pwd.Password, 'Password')}
                             className="h-8 w-8 text-muted-foreground hover:text-primary"
                           >
                             <Copy className="w-3 h-3" />
                           </Button>
                         </div>
                       </div>
-                      {pwd.description && (
-                        <p className="text-sm text-muted-foreground italic">{pwd.description}</p>
+                      {pwd.Description && (
+                        <p className="text-sm text-muted-foreground italic">{pwd.Description}</p>
                       )}
                     </div>
                   </CardContent>
