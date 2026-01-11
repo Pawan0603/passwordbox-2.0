@@ -73,8 +73,8 @@ const Page = () => {
 
   const filteredPasswords = passwords.filter(pwd =>
     pwd.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    pwd.website.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    pwd.username.toLowerCase().includes(searchQuery.toLowerCase())
+    pwd.webUrl.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    pwd.identifier.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const togglePasswordVisibility = (id) => {
@@ -253,7 +253,7 @@ const Page = () => {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div className={`grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 ${passwords.length === filteredPasswords.length ? '' : 'hidden md:grid'}`}>
           {[
             { label: 'Total Passwords', value: passwords.length, color: 'text-primary' },
             { label: 'Strong Passwords', value: passwords.length - 1, color: 'text-success' },
@@ -265,7 +265,7 @@ const Page = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
             >
-              <Card className="bg-card border-border hover:border-primary/50 transition-glow">
+              <Card className="bg-card p-0 md:p-6 border-border hover:border-primary/50 transition-glow">
                 <CardContent className="p-6">
                   <p className="text-sm text-muted-foreground mb-2">{stat.label}</p>
                   <p className={`text-3xl font-bold font-mono ${stat.color}`}>{stat.value}</p>
