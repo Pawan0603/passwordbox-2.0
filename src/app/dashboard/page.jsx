@@ -59,7 +59,7 @@ const Page = () => {
 
   const decryptPassword = (encryptedText) => {
     try {
-      const secretKey = process.env.NEXT_PUBLIC_MASTER_KEY+user._id;
+      const secretKey = process.env.NEXT_PUBLIC_MASTER_KEY;
 
       const bytes = CryptoJS.AES.decrypt(encryptedText, secretKey);
       const originalText = bytes.toString(CryptoJS.enc.Utf8);

@@ -20,7 +20,7 @@ export async function POST(request) {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const MasterKey = process.env.MASTER_KEY + decoded._id;
+    const MasterKey = process.env.MASTER_KEY;
 
     const encryptPassword = (password, masterKey) => {
       return CryptoJS.AES.encrypt(password, masterKey).toString();
@@ -97,7 +97,7 @@ export async function PUT(request) {
     }
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const MasterKey = process.env.MASTER_KEY + decoded._id;
+    const MasterKey = process.env.MASTER_KEY;
 
     const encryptPassword = (password, masterKey) => {
       return CryptoJS.AES.encrypt(password, masterKey).toString();
