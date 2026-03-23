@@ -26,6 +26,7 @@ import { toast } from 'sonner';
 import PasswordModal from '@/components/PasswordModal';
 import axios from 'axios';
 import CryptoJS from "crypto-js";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 const Page = () => {
   const router = useRouter();
@@ -53,7 +54,7 @@ const Page = () => {
   }
 
   useEffect(() => {
-    if(!user) return;
+    if (!user) return;
     fecthPasswords();
   }, [user]);
 
@@ -85,7 +86,7 @@ const Page = () => {
   };
 
   const copyToClipboard = (text, label) => {
-    if(label === 'Password') navigator.clipboard.writeText(decryptPassword(text));
+    if (label === 'Password') navigator.clipboard.writeText(decryptPassword(text));
     else navigator.clipboard.writeText(text);
     toast.success(`${label} copied to clipboard!`);
   };
@@ -319,14 +320,38 @@ const Page = () => {
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDelete(pwd._id)}
-                          className="text-muted-foreground hover:text-destructive"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              // onClick={() => handleDelete(pwd._id)}
+                              className="text-muted-foreground hover:text-destructive"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Are you absolutely sure?</DialogTitle>
+                              <DialogDescription>
+                                This action cannot be undone. This will permanently delete password data.
+                              </DialogDescription>
+                              <div className='flex flex-row gap-3 self-end-safe'>
+                                <DialogClose asChild>
+                                  <Button className={"hover:cursor-pointer"}>Cancel</Button>
+                                </DialogClose>
+                                <Button
+                                  variant='destructive'
+                                  className={"hover:cursor-pointer"}
+                                  onClick={() => handleDelete(pwd._id)}
+                                >
+                                  Delete
+                                </Button>
+                              </div>
+                            </DialogHeader>
+                          </DialogContent>
+                        </Dialog>
                       </div>
                     </div>
                   </CardHeader>
